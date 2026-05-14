@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Reservas | Hotel El Rincón del Carmen</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+  <header>
+    <nav>
+      <a href="index.html" class="logo">🏨 Rincón del Carmen</a>
+      <ul class="nav-links">
+        <li><a href="index.html">Inicio</a></li>
+        <li><a href="reservas.html" class="active">Reservas</a></li>
+        <li><a href="contacto.html">Contacto</a></li>
+        <li><a href="admin.html" class="hidden" id="adminLink">Admin</a></li>
+      </ul>
+      <button class="mobile-toggle">☰</button>
+    </nav>
+  </header>
+
+  <main class="container">
+    <h1 class="text-center" style="margin-bottom:2rem; font-size:1.8rem; color:var(--primary);">Gestión de Reservas</h1>
+    
+    <auth-panel></auth-panel>
+
+    <div id="bookingSection" class="mt-2 fade-in">
+      <booking-engine></booking-engine>
+    </div>
+
+    <user-bookings></user-bookings>
+  </main>
+
+  <footer style="text-align:center; padding:2rem 1rem; color:var(--text-light); font-size:0.9rem; background:var(--surface); margin-top:3rem;">
+    <p>© 2026 Hotel El Rincón del Carmen. Todos los derechos reservados.</p>
+  </footer>
+
+  <script type="module">
+    import './js/components.js';
+    import { DataService } from './js/data-service.js';
+    DataService.init();
+
+    // Mostrar link admin si aplica
+    if (DataService.isAdmin()) document.getElementById('adminLink').classList.remove('hidden');
+  </script>
+</body>
+</html>
