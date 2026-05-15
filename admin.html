@@ -23,40 +23,55 @@
   <main class="container">
     <div class="admin-header">
       <h1>Panel de Gestión Administrativa</h1>
-      <p>Administra habitaciones, reservas y disponibilidad del hotel.</p>
+      <p>Administra habitaciones, reservas y disponibilidad.</p>
     </div>
-
+    
     <div class="tabs">
       <button class="tab-btn active" data-tab="rooms">🏨 Habitaciones</button>
       <button class="tab-btn" data-tab="bookings">📋 Reservas</button>
     </div>
 
-    <!-- Tab Habitaciones -->
     <div id="roomsTab" class="tab-content">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:1rem;">
         <h2 class="section-title" style="margin:0;">Listado de Habitaciones</h2>
         <button class="btn btn-accent" id="openRoomModal">+ Agregar Habitación</button>
       </div>
       <div class="table-container">
-        <table id="roomsTable">
+        <table>
           <thead>
-            <tr><th>Nombre</th><th>Camas</th><th>Máx Personas</th><th>Precio/Noche</th><th>Servicios</th><th>Acciones</th></tr>
+            <tr>
+              <th>Nombre</th>
+              <th>Camas</th>
+              <th>Máx Pers.</th>
+              <th>Precio/Noche</th>
+              <th>Servicios</th>
+              <th>Acciones</th>
+            </tr>
           </thead>
           <tbody id="roomsBody"></tbody>
         </table>
       </div>
     </div>
 
-    <!-- Tab Reservas -->
     <div id="bookingsTab" class="tab-content hidden">
       <div class="card" style="margin-bottom:1.5rem; background:var(--bg);">
         <h2 class="section-title" style="margin:0 0 0.5rem;">Gestión de Reservas</h2>
-        <p style="color:var(--text-secondary); font-size:0.9rem;">Cancela reservas para liberar fechas inmediatamente. El sistema valida automáticamente la disponibilidad.</p>
+        <p style="color:var(--text-secondary); font-size:0.9rem;">
+          Cancela reservas para liberar fechas inmediatamente.
+        </p>
       </div>
       <div class="table-container">
-        <table id="bookingsTable">
+        <table>
           <thead>
-            <tr><th>ID</th><th>Cliente</th><th>Habitación</th><th>Fechas</th><th>Huéspedes</th><th>Total</th><th>Estado</th><th>Acciones</th></tr>
+            <tr>
+              <th>ID</th>
+              <th>Cliente</th>
+              <th>Habitación</th>
+              <th>Fechas</th>
+              <th>Total</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
           </thead>
           <tbody id="bookingsBody"></tbody>
         </table>
@@ -64,22 +79,39 @@
     </div>
   </main>
 
-  <!-- Modal Agregar/Editar Habitación -->
   <dialog id="roomModal">
     <div class="modal-header">
       <h3 id="modalTitle">Nueva Habitación</h3>
       <button class="close-modal" id="closeModal">&times;</button>
     </div>
     <form id="roomForm">
-      <div class="form-group"><label>Nombre de la habitación</label><input id="rName" required placeholder="Ej: Suite Carmen"></div>
-      <div class="grid" style="grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1rem;">
-        <div class="form-group" style="margin:0"><label>Cantidad de camas</label><input id="rBeds" type="number" min="1" required></div>
-        <div class="form-group" style="margin:0"><label>Máx. personas</label><input id="rMax" type="number" min="1" required></div>
+      <div class="form-group">
+        <label>Nombre</label>
+        <input id="rName" required placeholder="Suite Premium">
       </div>
-      <div class="form-group"><label>Precio por noche (COP)</label><input id="rPrice" type="number" min="10000" required placeholder="180000"></div>
-      <div class="form-group"><label>Servicios (separados por coma)</label><input id="rAmenities" placeholder="WiFi, Jacuzzi, Minibar, TV 50&quot;" required></div>
-      <div class="form-group"><label>URL de imagen (opcional)</label><input id="rImage" placeholder="https://... o dejar vacío"></div>
-      <button type="submit" class="btn btn-full">Guardar Habitación</button>
+      <div style="display: grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1rem;">
+        <div class="form-group" style="margin:0">
+          <label>Camas</label>
+          <input id="rBeds" type="number" min="1" required>
+        </div>
+        <div class="form-group" style="margin:0">
+          <label>Máx. personas</label>
+          <input id="rMax" type="number" min="1" required>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Precio/Noche (COP)</label>
+        <input id="rPrice" type="number" min="10000" required>
+      </div>
+      <div class="form-group">
+        <label>Servicios (coma)</label>
+        <input id="rAmenities" placeholder="WiFi, Jacuzzi, Minibar" required>
+      </div>
+      <div class="form-group">
+        <label>URL Imagen (opcional)</label>
+        <input id="rImage" placeholder="https://...">
+      </div>
+      <button type="submit" class="btn btn-full">Guardar</button>
     </form>
   </dialog>
 
@@ -90,42 +122,46 @@
   <script type="module">
     import { DataService } from './js/data-service.js';
     
-    // 🔒 Protección de ruta
     DataService.init();
-    if (!DataService.isAdmin()) {
-      alert('⚠️ Acceso denegado. Solo administradores pueden ver este panel.');
-      window.location.href = 'reservas.html';
+    if (!DataService.isAdmin()) { 
+      alert('⚠️ Acceso denegado.'); 
+      window.location.href = 'reservas.html'; 
     }
 
-    // 🔄 Renderizado
-    function renderRooms() {
+    const renderRooms = () => {
       const rooms = DataService.getRooms();
       const tbody = document.getElementById('roomsBody');
-      if (!rooms.length) return tbody.innerHTML = `<tr><td colspan="6" class="text-center" style="padding:2rem; color:var(--text-secondary);">No hay habitaciones registradas</td></tr>`;
-      
-      tbody.innerHTML = rooms.map(r => `
+      tbody.innerHTML = rooms.length ? rooms.map(r => `
         <tr>
           <td><strong>${r.name}</strong></td>
           <td>${r.beds}</td>
           <td>${r.maxGuests}</td>
           <td>$${r.price.toLocaleString()}</td>
-          <td style="font-size:0.85rem; color:var(--text-secondary);">${r.amenities.join(', ')}</td>
-          <td><button class="action-btn delete" onclick="deleteRoom('${r.id}')">🗑️ Eliminar</button></td>
+          <td style="font-size:0.85rem; color:var(--text-secondary);">
+            ${r.amenities.join(', ')}
+          </td>
+          <td>
+            <button class="action-btn delete" onclick="deleteRoom('${r.id}')">🗑️</button>
+          </td>
         </tr>
-      `).join('');
-    }
+      `).join('') : `
+        <tr>
+          <td colspan="6" class="text-center" style="padding:2rem; color:var(--text-secondary);">
+            No hay habitaciones
+          </td>
+        </tr>
+      `;
+    };
 
-    function renderBookings() {
+    const renderBookings = () => {
       const bookings = DataService.getBookings();
       const rooms = DataService.getRooms();
       const users = DataService.getUsers();
       const tbody = document.getElementById('bookingsBody');
       
-      if (!bookings.length) return tbody.innerHTML = `<tr><td colspan="8" class="text-center" style="padding:2rem; color:var(--text-secondary);">No hay reservas registradas</td></tr>`;
-
-      tbody.innerHTML = bookings.map(b => {
-        const room = rooms.find(r => r.id === b.roomId)?.name || 'Desconocida';
-        const user = users.find(u => u.id === b.userId)?.name || 'Usuario eliminado';
+      tbody.innerHTML = bookings.length ? bookings.map(b => {
+        const room = rooms.find(r => r.id === b.roomId)?.name || 'N/A';
+        const user = users.find(u => u.id === b.userId)?.name || 'N/A';
         const statusClass = b.status === 'confirmed' ? 'status-confirmed' : 'status-cancelled';
         return `
           <tr>
@@ -133,78 +169,89 @@
             <td>${user}</td>
             <td>${room}</td>
             <td style="font-size:0.85rem;">${b.checkIn} ➔ ${b.checkOut}</td>
-            <td>${b.guests}</td>
             <td>$${b.totalPrice.toLocaleString()}</td>
             <td><span class="status-badge ${statusClass}">${b.status}</span></td>
             <td>
-              ${b.status === 'confirmed' ? `<button class="action-btn cancel" onclick="cancelBooking('${b.id}')">❌ Cancelar</button>` : '—'}
+              ${b.status === 'confirmed' ? 
+                `<button class="action-btn cancel" onclick="cancelBooking('${b.id}')">❌</button>` : 
+                '—'
+              }
             </td>
           </tr>
         `;
-      }).join('');
-    }
-
-    // 🌐 Funciones globales para onclick
-    window.deleteRoom = (id) => {
-      if (!confirm('¿Eliminar esta habitación? No se pueden recuperar las reservas asociadas.')) return;
-      DataService.deleteRoom(id);
-      renderRooms();
+      }).join('') : `
+        <tr>
+          <td colspan="7" class="text-center" style="padding:2rem; color:var(--text-secondary);">
+            No hay reservas
+          </td>
+        </tr>
+      `;
     };
 
-    window.cancelBooking = (id) => {
-      if (!confirm('¿Cancelar esta reserva? Las fechas quedarán disponibles inmediatamente.')) return;
-      DataService.cancelBooking(id);
-      renderBookings();
+    window.deleteRoom = (id) => { 
+      if (confirm('¿Eliminar habitación?')) { 
+        DataService.deleteRoom(id); 
+        renderRooms(); 
+      } 
+    };
+    
+    window.cancelBooking = (id) => { 
+      if (confirm('¿Cancelar reserva?')) { 
+        DataService.cancelBooking(id); 
+        renderBookings(); 
+      } 
     };
 
-    // 📋 Tabs
     document.querySelectorAll('.tab-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
-        btn.classList.add('active');
-        document.getElementById(`${btn.dataset.tab}Tab`).classList.remove('hidden');
-      });
+      btn.onclick = () => { 
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); 
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden')); 
+        btn.classList.add('active'); 
+        document.getElementById(`${btn.dataset.tab}Tab`).classList.remove('hidden'); 
+      };
     });
-
-    // 🪟 Modal
+    
     const modal = document.getElementById('roomModal');
-    document.getElementById('openRoomModal').onclick = () => {
-      modal.showModal();
-      document.getElementById('roomForm').reset();
+    document.getElementById('openRoomModal').onclick = () => { 
+      modal.showModal(); 
+      document.getElementById('roomForm').reset(); 
     };
     document.getElementById('closeModal').onclick = () => modal.close();
-    modal.addEventListener('click', (e) => { if (e.target === modal) modal.close(); });
-
-    document.getElementById('roomForm').onsubmit = (e) => {
-      e.preventDefault();
-      const newRoom = {
-        id: 'r_' + Date.now(),
-        name: document.getElementById('rName').value,
-        beds: parseInt(document.getElementById('rBeds').value),
-        maxGuests: parseInt(document.getElementById('rMax').value),
-        price: parseInt(document.getElementById('rPrice').value),
-        amenities: document.getElementById('rAmenities').value.split(',').map(a => a.trim()).filter(a => a),
-        image: document.getElementById('rImage').value || 'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=800&q=80'
-      };
-      DataService.addRoom(newRoom);
-      modal.close();
-      renderRooms();
+    
+    document.getElementById('roomForm').onsubmit = (e) => { 
+      e.preventDefault(); 
+      DataService.addRoom({ 
+        id: 'r_' + Date.now(), 
+        name: document.getElementById('rName').value, 
+        beds: parseInt(document.getElementById('rBeds').value), 
+        maxGuests: parseInt(document.getElementById('rMax').value), 
+        price: parseInt(document.getElementById('rPrice').value), 
+        amenities: document.getElementById('rAmenities').value.split(',').map(a => a.trim()).filter(Boolean), 
+        image: document.getElementById('rImage').value || 'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=800&q=80' 
+      }); 
+      modal.close(); 
+      renderRooms(); 
     };
 
-    // 🚀 Init
-    renderRooms();
+    renderRooms(); 
     renderBookings();
-
-    // Mobile menu (mismo script que otras páginas)
-    document.querySelector('.mobile-toggle').addEventListener('click', () => {
-      const nav = document.querySelector('.nav-links');
-      nav.style.display = nav.style.display === 'flex' ? 'none' : 'flex';
-      nav.style.flexDirection = 'column';
-      nav.style.position = 'absolute';
-      nav.style.top = '100%'; nav.style.left = '0'; nav.style.right = '0';
-      nav.style.background = 'var(--surface)'; nav.style.padding = 'var(--space-md)';
-      nav.style.boxShadow = 'var(--shadow)'; nav.style.zIndex = '99';
+    
+    document.querySelector('.mobile-toggle').addEventListener('click', () => { 
+      const nav = document.querySelector('.nav-links'); 
+      if (nav.style.display === 'flex') { 
+        nav.style.display = 'none'; 
+      } else { 
+        nav.style.display = 'flex'; 
+        nav.style.flexDirection = 'column'; 
+        nav.style.position = 'absolute'; 
+        nav.style.top = '100%'; 
+        nav.style.left = '0'; 
+        nav.style.right = '0'; 
+        nav.style.background = 'var(--surface)'; 
+        nav.style.padding = 'var(--space-md)'; 
+        nav.style.boxShadow = 'var(--shadow)'; 
+        nav.style.zIndex = '99'; 
+      } 
     });
   </script>
 </body>

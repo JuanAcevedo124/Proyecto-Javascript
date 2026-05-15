@@ -19,46 +19,42 @@
     </nav>
   </header>
 
-  <!-- Hero -->
-  <section class="hero" style="padding: 3rem 5%;">
-    <h1 style="font-size: 2rem;">Estamos para Atenderte</h1>
-    <p>Contáctanos y te responderemos en menos de 24 horas</p>
+  <section class="hero">
+    <div class="hero-content">
+      <h1>Estamos para Atenderte</h1>
+      <p>Contáctanos y te responderemos en menos de 24 horas</p>
+    </div>
   </section>
 
   <main class="container">
-    <!-- Contact Info Cards -->
-    <div class="grid" style="margin-bottom: 3rem; max-width: 900px; margin-left: auto; margin-right: auto;">
-      <div class="card text-center">
-        <div style="font-size: 2.5rem; margin-bottom: 1rem;">📍</div>
-        <h3 style="margin-bottom: 0.5rem;">Ubicación</h3>
-        <p style="color: var(--text-secondary);">
-          Calle Principal #12-34<br>
-          Vereda El Carmen<br>
-          Municipio Turístico, Colombia
+    <!-- Cards de Información -->
+    <div class="contact-grid">
+      <div class="card text-center" style="padding: var(--space-xl);">
+        <div style="font-size: 3rem; margin-bottom: var(--space-md);">📍</div>
+        <h3 style="margin-bottom: var(--space-sm);">Ubicación</h3>
+        <p style="color: var(--text-secondary); margin:0;">
+          Calle Principal #12-34<br>Vereda El Carmen, Colombia
         </p>
       </div>
-      
-      <div class="card text-center">
-        <div style="font-size: 2.5rem; margin-bottom: 1rem;">📞</div>
-        <h3 style="margin-bottom: 0.5rem;">Teléfono & WhatsApp</h3>
-        <p style="color: var(--text-secondary);">
+      <div class="card text-center" style="padding: var(--space-xl);">
+        <div style="font-size: 3rem; margin-bottom: var(--space-md);">📞</div>
+        <h3 style="margin-bottom: var(--space-sm);">Teléfono</h3>
+        <p style="color: var(--text-secondary); margin:0;">
           +57 300 123 4567<br>
-          <small>Lun - Dom: 8am - 10pm</small>
+          <small style="display:block; margin-top:0.5rem;">Lun - Dom: 8am - 10pm</small>
         </p>
       </div>
-      
-      <div class="card text-center">
-        <div style="font-size: 2.5rem; margin-bottom: 1rem;">📧</div>
-        <h3 style="margin-bottom: 0.5rem;">Email</h3>
-        <p style="color: var(--text-secondary);">
-          reservas@rinconcarmen.com<br>
-          info@rinconcarmen.com
+      <div class="card text-center" style="padding: var(--space-xl);">
+        <div style="font-size: 3rem; margin-bottom: var(--space-md);">📧</div>
+        <h3 style="margin-bottom: var(--space-sm);">Email</h3>
+        <p style="color: var(--text-secondary); margin:0;">
+          reservas@rinconcarmen.com<br>info@rinconcarmen.com
         </p>
       </div>
     </div>
 
-    <!-- Map -->
-    <div class="card" style="margin-bottom: 3rem; padding: 0; overflow: hidden; height: 400px;">
+    <!-- Mapa -->
+    <div class="card" style="margin-bottom: 3rem; padding: 0; overflow: hidden; height: 400px; max-width: 1200px; margin-left: auto; margin-right: auto;">
       <iframe 
         src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3976.1234567890123!2d-74.12345678901234!3d4.123456789012345!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNMKwMDcnMjQuNCJOIDc0wrAwNzczNC40Ilc!5e0!3m2!1ses!2sco!4v1700000000000"
         width="100%" 
@@ -69,26 +65,20 @@
       </iframe>
     </div>
 
-    <!-- Contact Form -->
+    <!-- Formulario de Contacto -->
     <div class="form-card">
-      <h2 class="section-title text-center" style="margin-bottom: 2rem;">Envíanos un Mensaje</h2>
+      <h2 class="section-title text-center" style="margin-bottom: var(--space-xl);">Envíanos un Mensaje</h2>
       <form id="contactForm">
-        <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
-          <div class="form-group" style="margin-bottom: 0;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-md); margin-bottom: var(--space-md);">
+          <div class="form-group" style="margin:0;">
             <label>Nombre Completo *</label>
-            <input type="text" required placeholder="Tu nombre">
+            <input type="text" required placeholder="Tu nombre completo">
           </div>
-          <div class="form-group" style="margin-bottom: 0;">
+          <div class="form-group" style="margin:0;">
             <label>Correo Electrónico *</label>
             <input type="email" required placeholder="tu@email.com">
           </div>
         </div>
-        
-        <div class="form-group">
-          <label>Teléfono</label>
-          <input type="tel" placeholder="+57 300 123 4567">
-        </div>
-        
         <div class="form-group">
           <label>Asunto *</label>
           <select required>
@@ -100,13 +90,11 @@
             <option value="otro">Otro</option>
           </select>
         </div>
-        
         <div class="form-group">
           <label>Mensaje *</label>
           <textarea rows="5" required placeholder="¿En qué podemos ayudarte?"></textarea>
         </div>
-        
-        <button type="submit" class="btn btn-lg btn-accent" style="width: 100%; justify-content: center;">
+        <button type="submit" class="btn btn-accent btn-full" style="padding: var(--space-md); font-size: 1rem;">
           Enviar Mensaje
         </button>
       </form>
@@ -118,10 +106,28 @@
   </footer>
 
   <script>
-    document.getElementById('contactForm').addEventListener('submit', (e) => {
-      e.preventDefault();
-      alert('✅ Mensaje enviado correctamente\n\nTe responderemos en menos de 24 horas.');
-      e.target.reset();
+    document.getElementById('contactForm').addEventListener('submit', (e) => { 
+      e.preventDefault(); 
+      alert('✅ Mensaje enviado correctamente\n\nTe responderemos en menos de 24 horas.'); 
+      e.target.reset(); 
+    });
+    
+    document.querySelector('.mobile-toggle').addEventListener('click', () => { 
+      const nav = document.querySelector('.nav-links'); 
+      if (nav.style.display === 'flex') { 
+        nav.style.display = 'none'; 
+      } else { 
+        nav.style.display = 'flex'; 
+        nav.style.flexDirection = 'column'; 
+        nav.style.position = 'absolute'; 
+        nav.style.top = '100%'; 
+        nav.style.left = '0'; 
+        nav.style.right = '0'; 
+        nav.style.background = 'var(--surface)'; 
+        nav.style.padding = 'var(--space-md)'; 
+        nav.style.boxShadow = 'var(--shadow)'; 
+        nav.style.zIndex = '99'; 
+      } 
     });
   </script>
 </body>

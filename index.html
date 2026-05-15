@@ -29,33 +29,65 @@
       </div>
     </section>
 
-    <section class="container" style="margin-top: -2rem; position: relative; z-index: 2;">
-      <div class="form-card" style="padding: var(--space-lg);">
-        <h2 class="section-title text-center">Nuestras Habitaciones</h2>
-        <p class="text-center" style="color: var(--text-secondary); margin-bottom: var(--space-lg);">Espacios diseñados para tu descanso</p>
+    <section style="margin-top: -2rem; position: relative; z-index: 2;">
+      <div style="background: var(--surface); padding: var(--space-xl) var(--space-xl) var(--space-lg); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); margin: 0 1rem;">
+        <h2 class="section-title text-center" style="margin-bottom: var(--space-xs);">Nuestras Habitaciones</h2>
+        <p class="text-center" style="color: var(--text-secondary); margin-bottom: var(--space-lg); max-width: 600px; margin-left: auto; margin-right: auto;">
+          Espacios diseñados para tu descanso y bienestar.
+        </p>
         <room-carousel></room-carousel>
       </div>
     </section>
 
-    <section class="container">
+    <section style="margin-top: var(--space-xl);">
       <h2 class="section-title text-center">Experiencias & Servicios</h2>
-      <p class="text-center" style="color: var(--text-secondary); max-width: 600px; margin: 0 auto var(--space-xl);">Todo lo que necesitas para una estancia inolvidable.</p>
-      <service-gallery></service-gallery>
-    </section>
-
-    <section class="features" style="background: var(--surface); padding: var(--space-2xl) 5%; text-align: center; margin-top: var(--space-xl);">
-      <div class="features-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-xl); max-width: 1000px; margin: 0 auto;">
-        <div class="feature-item"><div style="font-size: 2.5rem; margin-bottom: var(--space-sm);">📶</div><h4>WiFi Alta Velocidad</h4><p style="color: var(--text-secondary);">Cobertura total en todo el hotel.</p></div>
-        <div class="feature-item"><div style="font-size: 2.5rem; margin-bottom: var(--space-sm);">🍳</div><h4>Desayuno Incluido</h4><p style="color: var(--text-secondary);">Productos frescos y locales.</p></div>
-        <div class="feature-item"><div style="font-size: 2.5rem; margin-bottom: var(--space-sm);">🅿️</div><h4>Parqueadero Gratuito</h4><p style="color: var(--text-secondary);">Vigilado 24/7.</p></div>
-        <div class="feature-item"><div style="font-size: 2.5rem; margin-bottom: var(--space-sm);">🌿</div><h4>Entorno Natural</h4><p style="color: var(--text-secondary);">Caminos ecológicos y paz absoluta.</p></div>
+      <p class="text-center" style="color: var(--text-secondary); max-width: 600px; margin: 0 auto var(--space-xl);">
+        Todo lo que necesitas para una estancia inolvidable.
+      </p>
+      <div style="padding: 0 var(--space-xl);">
+        <service-gallery></service-gallery>
       </div>
     </section>
 
-    <section class="cta-banner" style="background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; padding: var(--space-2xl) 5%; text-align: center; margin-top: var(--space-xl);">
-      <h2>¿Listo para tu Próxima Estadía?</h2>
-      <p style="margin-bottom: var(--space-lg); opacity: 0.9;">Reserva hoy y obtén acceso prioritario a nuestros servicios.</p>
-      <a href="reservas.html" class="btn btn-lg btn-accent" style="background: white; color: var(--primary); font-weight: 700;">Verificar Disponibilidad</a>
+    <section class="full-width-section">
+      <div style="text-align: center; padding: 0 var(--space-xl); margin-bottom: var(--space-xl);">
+        <h2 class="section-title">Todo lo que necesitas para una estadía perfecta</h2>
+        <p style="color: var(--text-secondary); max-width: 650px; margin: 0 auto;">
+          Combinamos comodidad moderna con el encanto natural del entorno.
+        </p>
+      </div>
+      <div class="features-grid">
+        <div class="feature-item">
+          <div class="feature-icon">📶</div>
+          <h4>WiFi Alta Velocidad</h4>
+          <p>Cobertura fibra óptica en habitaciones y áreas comunes.</p>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">🍳</div>
+          <h4>Desayuno Incluido</h4>
+          <p>Buffet diario con productos frescos y típicos de la región.</p>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">🅿️</div>
+          <h4>Parqueadero Gratuito</h4>
+          <p>Amplio estacionamiento privado con vigilancia 24h.</p>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">🌿</div>
+          <h4>Entorno Natural</h4>
+          <p>Caminos ecológicos, avistamiento de aves y paz absoluta.</p>
+        </div>
+      </div>
+    </section>
+
+    <section style="background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; padding: var(--space-2xl) 5%; text-align: center; margin-top: var(--space-xl);">
+      <h2 style="margin-bottom: var(--space-md);">¿Listo para tu Próxima Estadía?</h2>
+      <p style="margin-bottom: var(--space-lg); opacity: 0.9;">
+        Reserva hoy y obtén acceso prioritario a nuestros servicios.
+      </p>
+      <a href="reservas.html" class="btn btn-lg" style="background: white; color: var(--primary); font-weight: 700;">
+        Verificar Disponibilidad
+      </a>
     </section>
   </main>
 
@@ -68,23 +100,25 @@
     import './js/components.js';
     
     DataService.init();
-    if (DataService.isAdmin()) document.getElementById('adminLink').classList.remove('hidden');
+    if (DataService.isAdmin()) {
+      document.getElementById('adminLink').classList.remove('hidden');
+    }
 
     document.querySelector('.mobile-toggle').addEventListener('click', () => {
       const nav = document.querySelector('.nav-links');
-      if (nav.style.display === 'flex') {
-        nav.style.display = 'none';
-      } else {
-        nav.style.display = 'flex';
-        nav.style.flexDirection = 'column';
-        nav.style.position = 'absolute';
-        nav.style.top = '100%';
-        nav.style.left = '0';
-        nav.style.right = '0';
-        nav.style.background = 'var(--surface)';
-        nav.style.padding = 'var(--space-md)';
-        nav.style.boxShadow = 'var(--shadow)';
-        nav.style.zIndex = '99';
+      if (nav.style.display === 'flex') { 
+        nav.style.display = 'none'; 
+      } else { 
+        nav.style.display = 'flex'; 
+        nav.style.flexDirection = 'column'; 
+        nav.style.position = 'absolute'; 
+        nav.style.top = '100%'; 
+        nav.style.left = '0'; 
+        nav.style.right = '0'; 
+        nav.style.background = 'var(--surface)'; 
+        nav.style.padding = 'var(--space-md)'; 
+        nav.style.boxShadow = 'var(--shadow)'; 
+        nav.style.zIndex = '99'; 
       }
     });
   </script>
