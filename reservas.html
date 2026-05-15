@@ -4,9 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Reservas | Hotel El Rincón del Carmen</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/main.css">
 </head>
 <body>
@@ -17,35 +14,115 @@
         <li><a href="index.html">Inicio</a></li>
         <li><a href="reservas.html" class="active">Reservas</a></li>
         <li><a href="contacto.html">Contacto</a></li>
-        <li><a href="admin.html" class="hidden" id="adminLink">Admin</a></li>
+        <li><a href="admin.html" class="hidden" id="adminLink">Panel Admin</a></li>
       </ul>
       <button class="mobile-toggle">☰</button>
     </nav>
   </header>
 
-  <main class="container">
-    <h1 class="text-center" style="margin-bottom:2rem; font-size:1.8rem; color:var(--primary);">Gestión de Reservas</h1>
-    
-    <auth-panel></auth-panel>
-
-    <div id="bookingSection" class="mt-2 fade-in">
-      <booking-engine></booking-engine>
+  <section class="hero" style="min-height: auto; padding: var(--space-xl) 5%; background: linear-gradient(135deg, var(--primary), var(--primary-dark));">
+    <div class="hero-content">
+      <h1>Encuentra tu Habitación Perfecta</h1>
+      <p>Selecciona tus fechas y descubre las opciones disponibles</p>
     </div>
+  </section>
 
-    <user-bookings></user-bookings>
+  <div class="search-container">
+    <form class="search-form" id="searchForm">
+      <div class="search-field"><label>📅 Llegada</label><input type="date" id="checkIn" required></div>
+      <div class="search-field"><label>📅 Salida</label><input type="date" id="checkOut" required></div>
+      <div class="search-field"><label>👥 Huéspedes</label>
+        <select id="guests" required>
+          <option value="1">1 huésped</option><option value="2" selected>2 huéspedes</option>
+          <option value="3">3 huéspedes</option><option value="4">4 huéspedes</option><option value="5">5 huéspedes</option><option value="6">6+ huéspedes</option>
+        </select>
+      </div>
+      <button type="submit" class="search-btn">🔍 Buscar</button>
+    </form>
+  </div>
+
+  <main class="container">
+    <div id="authSection" class="mb-2"><auth-panel></auth-panel></div>
+    <div id="resultsSection" class="fade-in">
+      <h2 class="section-title" id="resultsTitle">Habitaciones Disponibles</h2>
+      <div id="roomsGrid" class="grid"></div>
+    </div>
+    <div id="myBookingsSection" class="mt-2 hidden"><user-bookings></user-bookings></div>
   </main>
 
-  <footer style="text-align:center; padding:2rem 1rem; color:var(--text-light); font-size:0.9rem; background:var(--surface); margin-top:3rem;">
+  <footer>
     <p>© 2026 Hotel El Rincón del Carmen. Todos los derechos reservados.</p>
   </footer>
 
   <script type="module">
-    import './js/components.js';
     import { DataService } from './js/data-service.js';
+    import './js/components.js';
+    
     DataService.init();
-
-    // Mostrar link admin si aplica
     if (DataService.isAdmin()) document.getElementById('adminLink').classList.remove('hidden');
+
+    // Set fechas por defecto
+    const today = new Date().toISOString().split('T')[0];
+    const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
+    document.getElementById('checkIn').value = today;
+    document.getElementById('checkOut').value = tomorrow;
+
+    document.getElementById('searchForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const checkIn = document.getElementById('checkIn').value;
+      const checkOut = document.getElementById('checkOut').value;
+      const guests = parseInt(document.getElementById('guests').value);
+      
+      if (new Date(checkIn) >= new Date(checkOut)) return alert('⚠️ La fecha de salida debe ser posterior a la llegada.');
+
+      const rooms = DataService.getRooms();
+      const grid = document.getElementById('roomsGrid');
+      const title = document.getElementById('resultsTitle');
+      
+      const available = rooms.filter(r => guests <= r.maxGuests && DataService.isAvailable(r.id, checkIn, checkOut));
+
+      if (!available.length) {
+        grid.innerHTML = `<div class="alert alert-error" style="grid-column:1/-1;">No hay habitaciones disponibles para estas fechas y número de huéspedes.</div>`;
+        title.textContent = 'Sin Resultados';
+        return;
+      }
+
+      title.textContent = `${available.length} Habitación${available.length > 1 ? 'es' : ''} Disponible${available.length > 1 ? 's' : ''}`;
+      grid.innerHTML = available.map(r => {
+        const { nights, total } = DataService.calcPrice(r.price, checkIn, checkOut);
+        return `
+          <div class="card">
+            <div class="card-image"><img src="${r.image}" alt="${r.name}" loading="lazy"></div>
+            <div class="card-badge">Disponible</div>
+            <div class="card-content">
+              <h3 class="card-title">${r.name}</h3>
+              <p class="card-location">🛏️ ${r.beds} cama(s) • 👥 Máx ${r.maxGuests} personas</p>
+              <div class="card-amenities">${r.amenities.map(a => `<span>• ${a}</span>`).join('')}</div>
+              <div class="card-footer">
+                <div class="card-price"><span class="label">Total ${nights} noche${nights > 1 ? 's' : ''}</span><span class="amount">$${total.toLocaleString()} <span>COP</span></span></div>
+                <button class="btn btn-accent book-btn" data-room="${r.id}" data-in="${checkIn}" data-out="${checkOut}" data-guests="${guests}" data-total="${total}">Reservar</button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      document.querySelectorAll('.book-btn').forEach(btn => btn.onclick = () => handleBooking(btn.dataset));
+    });
+
+    async function handleBooking(d) {
+      const user = DataService.getSession();
+      if (!user) return alert('⚠️ Inicia sesión o regístrate para reservar.');
+      if (!DataService.isAvailable(d.room, d.in, d.out)) return alert('⚠️ Esta habitación ya fue reservada. Selecciona otra fecha.');
+
+      const booking = { id: 'bk_' + Date.now(), userId: user.id, roomId: d.room, checkIn: d.in, checkOut: d.out, guests: parseInt(d.guests), totalPrice: parseInt(d.total), status: 'confirmed', createdAt: new Date().toISOString() };
+      DataService.addBooking(booking);
+      alert(`✅ ¡Reserva Confirmada!\n\nID: ${booking.id}\nFechas: ${d.in} - ${d.out}\nTotal: $${parseInt(d.total).toLocaleString()} COP`);
+      
+      document.getElementById('myBookingsSection').classList.remove('hidden');
+      document.querySelector('user-bookings').connectedCallback();
+      document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
+    }
   </script>
 </body>
 </html>
