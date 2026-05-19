@@ -16,14 +16,14 @@
         <li><a href="contacto.html">Contacto</a></li>
         <li><a href="admin.html" class="active">Panel Admin</a></li>
       </ul>
-      <button class="mobile-toggle">☰</button>
+      <button class="mobile-toggle"></button>
     </nav>
   </header>
 
   <main class="container">
     <div class="admin-header">
       <h1>Panel de Gestión Administrativa</h1>
-      <p>Administra habitaciones, reservas y disponibilidad.</p>
+      <p>Administra habitaciones, reservas y disponibilidad del hotel.</p>
     </div>
     
     <div class="tabs">
@@ -31,6 +31,7 @@
       <button class="tab-btn" data-tab="bookings">📋 Reservas</button>
     </div>
 
+    <!-- Tab Habitaciones -->
     <div id="roomsTab" class="tab-content">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:1rem;">
         <h2 class="section-title" style="margin:0;">Listado de Habitaciones</h2>
@@ -53,11 +54,12 @@
       </div>
     </div>
 
+    <!-- Tab Reservas -->
     <div id="bookingsTab" class="tab-content hidden">
       <div class="card" style="margin-bottom:1.5rem; background:var(--bg);">
         <h2 class="section-title" style="margin:0 0 0.5rem;">Gestión de Reservas</h2>
         <p style="color:var(--text-secondary); font-size:0.9rem;">
-          Cancela reservas para liberar fechas inmediatamente.
+          Cancela reservas para liberar fechas inmediatamente. El sistema valida automáticamente la disponibilidad.
         </p>
       </div>
       <div class="table-container">
@@ -79,6 +81,7 @@
     </div>
   </main>
 
+  <!-- Modal para Agregar/Editar Habitación -->
   <dialog id="roomModal">
     <div class="modal-header">
       <h3 id="modalTitle">Nueva Habitación</h3>
@@ -86,12 +89,12 @@
     </div>
     <form id="roomForm">
       <div class="form-group">
-        <label>Nombre</label>
-        <input id="rName" required placeholder="Suite Premium">
+        <label>Nombre de la habitación</label>
+        <input id="rName" required placeholder="Ej: Suite Carmen">
       </div>
       <div style="display: grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1rem;">
         <div class="form-group" style="margin:0">
-          <label>Camas</label>
+          <label>Cantidad de camas</label>
           <input id="rBeds" type="number" min="1" required>
         </div>
         <div class="form-group" style="margin:0">
@@ -100,18 +103,18 @@
         </div>
       </div>
       <div class="form-group">
-        <label>Precio/Noche (COP)</label>
-        <input id="rPrice" type="number" min="10000" required>
+        <label>Precio por noche (COP)</label>
+        <input id="rPrice" type="number" min="10000" required placeholder="180000">
       </div>
       <div class="form-group">
-        <label>Servicios (coma)</label>
-        <input id="rAmenities" placeholder="WiFi, Jacuzzi, Minibar" required>
+        <label>Servicios (separados por coma)</label>
+        <input id="rAmenities" placeholder="WiFi, Jacuzzi, Minibar, TV 50&quot;" required>
       </div>
       <div class="form-group">
-        <label>URL Imagen (opcional)</label>
-        <input id="rImage" placeholder="https://...">
+        <label>URL Imagen Principal (opcional)</label>
+        <input id="rImage" placeholder="https://images.unsplash.com/...">
       </div>
-      <button type="submit" class="btn btn-full">Guardar</button>
+      <button type="submit" class="btn btn-full">Guardar Habitación</button>
     </form>
   </dialog>
 
@@ -122,12 +125,16 @@
   <script type="module">
     import { DataService } from './js/data-service.js';
     
+    // 1. Inicializar datos SIEMPRE primero
     DataService.init();
+    
+    // 2. Verificar sesión admin
     if (!DataService.isAdmin()) { 
-      alert('⚠️ Acceso denegado.'); 
+      alert('⚠️ Acceso denegado. Debes iniciar sesión con una cuenta de administrador.');
       window.location.href = 'reservas.html'; 
     }
 
+    // 🔄 Renderizar Tabla de Habitaciones
     const renderRooms = () => {
       const rooms = DataService.getRooms();
       const tbody = document.getElementById('roomsBody');
@@ -137,22 +144,13 @@
           <td>${r.beds}</td>
           <td>${r.maxGuests}</td>
           <td>$${r.price.toLocaleString()}</td>
-          <td style="font-size:0.85rem; color:var(--text-secondary);">
-            ${r.amenities.join(', ')}
-          </td>
-          <td>
-            <button class="action-btn delete" onclick="deleteRoom('${r.id}')">🗑️</button>
-          </td>
+          <td style="font-size:0.85rem; color:var(--text-secondary);">${r.amenities.join(', ')}</td>
+          <td><button class="action-btn delete" onclick="deleteRoom('${r.id}')">🗑️</button></td>
         </tr>
-      `).join('') : `
-        <tr>
-          <td colspan="6" class="text-center" style="padding:2rem; color:var(--text-secondary);">
-            No hay habitaciones
-          </td>
-        </tr>
-      `;
+      `).join('') : `<tr><td colspan="6" class="text-center" style="padding:2rem; color:var(--text-secondary);">No hay habitaciones registradas</td></tr>`;
     };
 
+    // 📋 Renderizar Tabla de Reservas
     const renderBookings = () => {
       const bookings = DataService.getBookings();
       const rooms = DataService.getRooms();
@@ -160,8 +158,8 @@
       const tbody = document.getElementById('bookingsBody');
       
       tbody.innerHTML = bookings.length ? bookings.map(b => {
-        const room = rooms.find(r => r.id === b.roomId)?.name || 'N/A';
-        const user = users.find(u => u.id === b.userId)?.name || 'N/A';
+        const room = rooms.find(r => r.id === b.roomId)?.name || 'Desconocida';
+        const user = users.find(u => u.id === b.userId)?.name || 'Usuario eliminado';
         const statusClass = b.status === 'confirmed' ? 'status-confirmed' : 'status-cancelled';
         return `
           <tr>
@@ -173,35 +171,31 @@
             <td><span class="status-badge ${statusClass}">${b.status}</span></td>
             <td>
               ${b.status === 'confirmed' ? 
-                `<button class="action-btn cancel" onclick="cancelBooking('${b.id}')">❌</button>` : 
+                `<button class="action-btn cancel" onclick="cancelBooking('${b.id}')">❌ Cancelar</button>` : 
                 '—'
               }
             </td>
           </tr>
         `;
-      }).join('') : `
-        <tr>
-          <td colspan="7" class="text-center" style="padding:2rem; color:var(--text-secondary);">
-            No hay reservas
-          </td>
-        </tr>
-      `;
+      }).join('') : `<tr><td colspan="7" class="text-center" style="padding:2rem; color:var(--text-secondary);">No hay reservas registradas</td></tr>`;
     };
 
+    // 🗑️ Funciones Globales para botones inline
     window.deleteRoom = (id) => { 
-      if (confirm('¿Eliminar habitación?')) { 
+      if (confirm('¿Eliminar esta habitación? Esta acción no se puede deshacer.')) { 
         DataService.deleteRoom(id); 
         renderRooms(); 
       } 
     };
     
     window.cancelBooking = (id) => { 
-      if (confirm('¿Cancelar reserva?')) { 
+      if (confirm('¿Cancelar esta reserva? Las fechas quedarán disponibles inmediatamente.')) { 
         DataService.cancelBooking(id); 
         renderBookings(); 
       } 
     };
 
+    // 📑 Lógica de Tabs
     document.querySelectorAll('.tab-btn').forEach(btn => {
       btn.onclick = () => { 
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); 
@@ -211,6 +205,7 @@
       };
     });
     
+    // 🪟 Modal
     const modal = document.getElementById('roomModal');
     document.getElementById('openRoomModal').onclick = () => { 
       modal.showModal(); 
@@ -218,8 +213,11 @@
     };
     document.getElementById('closeModal').onclick = () => modal.close();
     
+    // 💾 LÓGICA DE GUARDAR ACTUALIZADA (Soporte para galería de imágenes)
     document.getElementById('roomForm').onsubmit = (e) => { 
       e.preventDefault(); 
+      const imgUrl = document.getElementById('rImage').value.trim() || 'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=800&q=80';
+      
       DataService.addRoom({ 
         id: 'r_' + Date.now(), 
         name: document.getElementById('rName').value, 
@@ -227,15 +225,18 @@
         maxGuests: parseInt(document.getElementById('rMax').value), 
         price: parseInt(document.getElementById('rPrice').value), 
         amenities: document.getElementById('rAmenities').value.split(',').map(a => a.trim()).filter(Boolean), 
-        image: document.getElementById('rImage').value || 'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=800&q=80' 
+        //  Array de imágenes requerido por el componente <room-gallery>
+        images: [imgUrl, imgUrl, imgUrl, imgUrl] 
       }); 
       modal.close(); 
       renderRooms(); 
     };
 
+    // 🚀 Inicialización
     renderRooms(); 
     renderBookings();
     
+    // 📱 Menú Móvil
     document.querySelector('.mobile-toggle').addEventListener('click', () => { 
       const nav = document.querySelector('.nav-links'); 
       if (nav.style.display === 'flex') { 

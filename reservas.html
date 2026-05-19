@@ -77,13 +77,13 @@
     if (DataService.isAdmin()) {
       document.getElementById('adminLink').classList.remove('hidden');
     }
-
+  
     // Fechas por defecto
     const today = new Date().toISOString().split('T')[0];
     const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
     document.getElementById('checkIn').value = today;
     document.getElementById('checkOut').value = tomorrow;
-
+  
     document.getElementById('searchForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const checkIn = document.getElementById('checkIn').value;
@@ -93,14 +93,14 @@
       if (new Date(checkIn) >= new Date(checkOut)) {
         return alert('⚠️ La fecha de salida debe ser posterior a la llegada.');
       }
-
+  
       const rooms = DataService.getRooms();
       const grid = document.getElementById('roomsGrid');
       const title = document.getElementById('resultsTitle');
       const available = rooms.filter(r => 
         guests <= r.maxGuests && DataService.isAvailable(r.id, checkIn, checkOut)
       );
-
+  
       if (!available.length) { 
         grid.innerHTML = `
           <div class="alert alert-error" style="grid-column:1/-1;">
@@ -110,16 +110,14 @@
         title.textContent = 'Sin Resultados'; 
         return; 
       }
-
+  
       title.textContent = `${available.length} Habitación${available.length > 1 ? 'es' : ''} Disponible${available.length > 1 ? 's' : ''}`;
       
       grid.innerHTML = available.map(r => {
-        const { nights, total } = DataService.calcPrice(r.price, checkIn, checkOut);
+      const { nights, total } = DataService.calcPrice(r.price, checkIn, checkOut);
         return `
           <div class="card">
-            <div class="card-image">
-              <img src="${r.image}" alt="${r.name}" loading="lazy">
-            </div>
+            <room-gallery images='${JSON.stringify(r.images)}'></room-gallery>
             <div class="card-badge">Disponible</div>
             <div class="card-content">
               <h3 class="card-title">${r.name}</h3>
@@ -150,7 +148,7 @@
         btn.onclick = () => handleBooking(btn.dataset);
       });
     });
-
+  
     function handleBooking(d) {
       const user = DataService.getSession();
       if (!user) {
@@ -159,7 +157,7 @@
       if (!DataService.isAvailable(d.room, d.in, d.out)) {
         return alert('⚠️ Esta habitación ya fue reservada. Selecciona otra fecha.');
       }
-
+  
       DataService.addBooking({ 
         id: 'bk_' + Date.now(), 
         userId: user.id, 
@@ -178,7 +176,7 @@
       document.querySelector('user-bookings').connectedCallback();
       document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
     }
-
+  
     // User bookings component
     customElements.define('user-bookings', class extends HTMLElement {
       connectedCallback() {
