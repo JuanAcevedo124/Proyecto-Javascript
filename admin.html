@@ -16,19 +16,19 @@
         <li><a href="contacto.html">Contacto</a></li>
         <li><a href="admin.html" class="active">Panel Admin</a></li>
       </ul>
-      <button class="mobile-toggle"></button>
+      <button class="mobile-toggle">☰</button>
     </nav>
   </header>
 
   <main class="container">
     <div class="admin-header">
       <h1>Panel de Gestión Administrativa</h1>
-      <p>Administra habitaciones, reservas y disponibilidad del hotel.</p>
+      <p>Administra habitaciones, reservas y facturación.</p>
     </div>
     
     <div class="tabs">
       <button class="tab-btn active" data-tab="rooms">🏨 Habitaciones</button>
-      <button class="tab-btn" data-tab="bookings">📋 Reservas</button>
+      <button class="tab-btn" data-tab="bookings">📋 Reservas & Facturas</button>
     </div>
 
     <!-- Tab Habitaciones -->
@@ -56,10 +56,10 @@
 
     <!-- Tab Reservas -->
     <div id="bookingsTab" class="tab-content hidden">
-      <div class="card" style="margin-bottom:1.5rem; background:var(--bg);">
+      <div class="card" style="margin-bottom:1.5rem; background:var(--bg-secondary); border-color:var(--border);">
         <h2 class="section-title" style="margin:0 0 0.5rem;">Gestión de Reservas</h2>
         <p style="color:var(--text-secondary); font-size:0.9rem;">
-          Cancela reservas para liberar fechas inmediatamente. El sistema valida automáticamente la disponibilidad.
+          Visualiza, cancela o genera la factura de las reservas confirmadas.
         </p>
       </div>
       <div class="table-container">
@@ -81,41 +81,35 @@
     </div>
   </main>
 
-  <!-- Modal para Agregar/Editar Habitación -->
+  <!-- Modal para Agregar Habitación -->
   <dialog id="roomModal">
     <div class="modal-header">
       <h3 id="modalTitle">Nueva Habitación</h3>
-      <button class="close-modal" id="closeModal">&times;</button>
+      <button class="close-modal" id="closeRoomModal">&times;</button>
     </div>
     <form id="roomForm">
-      <div class="form-group">
-        <label>Nombre de la habitación</label>
-        <input id="rName" required placeholder="Ej: Suite Carmen">
-      </div>
+      <div class="form-group"><label>Nombre</label><input id="rName" required placeholder="Suite Premium"></div>
       <div style="display: grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1rem;">
-        <div class="form-group" style="margin:0">
-          <label>Cantidad de camas</label>
-          <input id="rBeds" type="number" min="1" required>
-        </div>
-        <div class="form-group" style="margin:0">
-          <label>Máx. personas</label>
-          <input id="rMax" type="number" min="1" required>
-        </div>
+        <div class="form-group" style="margin:0"><label>Camas</label><input id="rBeds" type="number" min="1" required></div>
+        <div class="form-group" style="margin:0"><label>Máx. personas</label><input id="rMax" type="number" min="1" required></div>
       </div>
-      <div class="form-group">
-        <label>Precio por noche (COP)</label>
-        <input id="rPrice" type="number" min="10000" required placeholder="180000">
-      </div>
-      <div class="form-group">
-        <label>Servicios (separados por coma)</label>
-        <input id="rAmenities" placeholder="WiFi, Jacuzzi, Minibar, TV 50&quot;" required>
-      </div>
-      <div class="form-group">
-        <label>URL Imagen Principal (opcional)</label>
-        <input id="rImage" placeholder="https://images.unsplash.com/...">
-      </div>
-      <button type="submit" class="btn btn-full">Guardar Habitación</button>
+      <div class="form-group"><label>Precio/Noche (COP)</label><input id="rPrice" type="number" min="10000" required></div>
+      <div class="form-group"><label>Servicios (coma)</label><input id="rAmenities" placeholder="WiFi, Jacuzzi, Minibar" required></div>
+      <div class="form-group"><label>URL Imagen Principal</label><input id="rImage" placeholder="https://..."></div>
+      <button type="submit" class="btn btn-full">Guardar</button>
     </form>
+  </dialog>
+
+  <!-- Modal de Factura -->
+  <dialog id="invoiceModal">
+    <div class="modal-header">
+      <h3>Vista Previa de Factura</h3>
+      <button class="close-modal" onclick="document.getElementById('invoiceModal').close()">&times;</button>
+    </div>
+    <div class="invoice-modal-content" id="invoiceContent">
+      <!-- El contenido se inyecta con JS -->
+    </div>
+    <button class="btn btn-print" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
   </dialog>
 
   <footer>
@@ -125,16 +119,13 @@
   <script type="module">
     import { DataService } from './js/data-service.js';
     
-    // 1. Inicializar datos SIEMPRE primero
     DataService.init();
-    
-    // 2. Verificar sesión admin
     if (!DataService.isAdmin()) { 
-      alert('⚠️ Acceso denegado. Debes iniciar sesión con una cuenta de administrador.');
+      alert('⚠️ Acceso denegado.');
       window.location.href = 'reservas.html'; 
     }
 
-    // 🔄 Renderizar Tabla de Habitaciones
+    // --- Renderizado de Habitaciones ---
     const renderRooms = () => {
       const rooms = DataService.getRooms();
       const tbody = document.getElementById('roomsBody');
@@ -147,10 +138,10 @@
           <td style="font-size:0.85rem; color:var(--text-secondary);">${r.amenities.join(', ')}</td>
           <td><button class="action-btn delete" onclick="deleteRoom('${r.id}')">🗑️</button></td>
         </tr>
-      `).join('') : `<tr><td colspan="6" class="text-center" style="padding:2rem; color:var(--text-secondary);">No hay habitaciones registradas</td></tr>`;
+      `).join('') : `<tr><td colspan="6" class="text-center" style="padding:2rem;">No hay habitaciones</td></tr>`;
     };
 
-    // 📋 Renderizar Tabla de Reservas
+    // --- Renderizado de Reservas ---
     const renderBookings = () => {
       const bookings = DataService.getBookings();
       const rooms = DataService.getRooms();
@@ -158,44 +149,91 @@
       const tbody = document.getElementById('bookingsBody');
       
       tbody.innerHTML = bookings.length ? bookings.map(b => {
-        const room = rooms.find(r => r.id === b.roomId)?.name || 'Desconocida';
-        const user = users.find(u => u.id === b.userId)?.name || 'Usuario eliminado';
+        const room = rooms.find(r => r.id === b.roomId)?.name || 'N/A';
+        const user = users.find(u => u.id === b.userId);
         const statusClass = b.status === 'confirmed' ? 'status-confirmed' : 'status-cancelled';
+        
+        // Botón de facturar solo si está confirmada
+        const invoiceBtn = b.status === 'confirmed' 
+          ? `<button class="action-btn" style="background:#e0f2fe; color:#0369a1; margin-right:5px;" onclick="generateInvoice('${b.id}')">📄 Facturar</button>` 
+          : '';
+
         return `
           <tr>
             <td style="font-family:monospace; font-size:0.8rem;">${b.id.slice(-6)}</td>
-            <td>${user}</td>
+            <td>${user ? user.name : 'N/A'}</td>
             <td>${room}</td>
             <td style="font-size:0.85rem;">${b.checkIn} ➔ ${b.checkOut}</td>
             <td>$${b.totalPrice.toLocaleString()}</td>
             <td><span class="status-badge ${statusClass}">${b.status}</span></td>
             <td>
-              ${b.status === 'confirmed' ? 
-                `<button class="action-btn cancel" onclick="cancelBooking('${b.id}')">❌ Cancelar</button>` : 
-                '—'
-              }
+              ${invoiceBtn}
+              ${b.status === 'confirmed' ? `<button class="action-btn cancel" onclick="cancelBooking('${b.id}')">❌</button>` : '—'}
             </td>
           </tr>
         `;
-      }).join('') : `<tr><td colspan="7" class="text-center" style="padding:2rem; color:var(--text-secondary);">No hay reservas registradas</td></tr>`;
+      }).join('') : `<tr><td colspan="7" class="text-center" style="padding:2rem;">No hay reservas</td></tr>`;
     };
 
-    // 🗑️ Funciones Globales para botones inline
+    // --- Generar Factura ---
+    window.generateInvoice = (bookingId) => {
+      const booking = DataService.getBookings().find(b => b.id === bookingId);
+      if (!booking) return;
+
+      const room = DataService.getRooms().find(r => r.id === booking.roomId);
+      const user = DataService.getUsers().find(u => u.id === booking.userId);
+      const today = new Date().toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' });
+
+      const invoiceHTML = `
+        <div class="invoice-header">
+          <div>
+            <div class="invoice-title">Factura de Venta</div>
+            <div style="font-size:0.9rem; color:#666;">Hotel El Rincón del Carmen</div>
+          </div>
+          <div style="text-align:right;">
+            <div class="invoice-date">Fecha: ${today}</div>
+            <div class="invoice-date">No. Factura: ${booking.id.toUpperCase()}</div>
+          </div>
+        </div>
+
+        <div class="invoice-section">
+          <h4>Datos del Cliente</h4>
+          <div class="invoice-details">
+            <p><strong>Nombre:</strong> ${user ? user.name : 'N/A'}</p>
+            <p><strong>Documento:</strong> ${user ? user.docId : 'N/A'}</p>
+            <p><strong>Email:</strong> ${user ? user.email : 'N/A'}</p>
+            <p><strong>Teléfono:</strong> ${user ? user.phone : 'N/A'}</p>
+          </div>
+        </div>
+
+        <div class="invoice-section">
+          <h4>Detalles de la Reserva</h4>
+          <div class="invoice-details">
+            <p><strong>Habitación:</strong> ${room ? room.name : 'N/A'}</p>
+            <p><strong>Fechas:</strong> ${booking.checkIn} al ${booking.checkOut}</p>
+            <p><strong>Noches:</strong> ${Math.ceil((new Date(booking.checkOut) - new Date(booking.checkIn)) / (1000 * 60 * 60 * 24))}</p>
+            <p><strong>Huéspedes:</strong> ${booking.guests}</p>
+          </div>
+        </div>
+
+        <div class="invoice-total">
+          Total a Pagar: $${booking.totalPrice.toLocaleString()} COP
+        </div>
+      `;
+
+      document.getElementById('invoiceContent').innerHTML = invoiceHTML;
+      document.getElementById('invoiceModal').showModal();
+    };
+
+    // --- Acciones Globales ---
     window.deleteRoom = (id) => { 
-      if (confirm('¿Eliminar esta habitación? Esta acción no se puede deshacer.')) { 
-        DataService.deleteRoom(id); 
-        renderRooms(); 
-      } 
+      if (confirm('¿Eliminar habitación?')) { DataService.deleteRoom(id); renderRooms(); } 
     };
-    
     window.cancelBooking = (id) => { 
-      if (confirm('¿Cancelar esta reserva? Las fechas quedarán disponibles inmediatamente.')) { 
-        DataService.cancelBooking(id); 
-        renderBookings(); 
-      } 
+      if (confirm('¿Cancelar reserva?')) { DataService.cancelBooking(id); renderBookings(); } 
     };
 
-    // 📑 Lógica de Tabs
+    // --- Tabs y Modales ---
     document.querySelectorAll('.tab-btn').forEach(btn => {
       btn.onclick = () => { 
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); 
@@ -205,19 +243,13 @@
       };
     });
     
-    // 🪟 Modal
-    const modal = document.getElementById('roomModal');
-    document.getElementById('openRoomModal').onclick = () => { 
-      modal.showModal(); 
-      document.getElementById('roomForm').reset(); 
-    };
-    document.getElementById('closeModal').onclick = () => modal.close();
+    const roomModal = document.getElementById('roomModal');
+    document.getElementById('openRoomModal').onclick = () => { roomModal.showModal(); document.getElementById('roomForm').reset(); };
+    document.getElementById('closeRoomModal').onclick = () => roomModal.close();
     
-    // 💾 LÓGICA DE GUARDAR ACTUALIZADA (Soporte para galería de imágenes)
     document.getElementById('roomForm').onsubmit = (e) => { 
       e.preventDefault(); 
-      const imgUrl = document.getElementById('rImage').value.trim() || 'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=800&q=80';
-      
+      const imgUrl = document.getElementById('rImage').value || 'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=800&q=80';
       DataService.addRoom({ 
         id: 'r_' + Date.now(), 
         name: document.getElementById('rName').value, 
@@ -225,34 +257,23 @@
         maxGuests: parseInt(document.getElementById('rMax').value), 
         price: parseInt(document.getElementById('rPrice').value), 
         amenities: document.getElementById('rAmenities').value.split(',').map(a => a.trim()).filter(Boolean), 
-        //  Array de imágenes requerido por el componente <room-gallery>
         images: [imgUrl, imgUrl, imgUrl, imgUrl] 
       }); 
-      modal.close(); 
-      renderRooms(); 
+      roomModal.close(); renderRooms(); 
     };
 
-    // 🚀 Inicialización
     renderRooms(); 
     renderBookings();
     
-    // 📱 Menú Móvil
+    // Menú móvil
     document.querySelector('.mobile-toggle').addEventListener('click', () => { 
       const nav = document.querySelector('.nav-links'); 
-      if (nav.style.display === 'flex') { 
-        nav.style.display = 'none'; 
-      } else { 
-        nav.style.display = 'flex'; 
-        nav.style.flexDirection = 'column'; 
-        nav.style.position = 'absolute'; 
-        nav.style.top = '100%'; 
-        nav.style.left = '0'; 
-        nav.style.right = '0'; 
-        nav.style.background = 'var(--surface)'; 
-        nav.style.padding = 'var(--space-md)'; 
-        nav.style.boxShadow = 'var(--shadow)'; 
-        nav.style.zIndex = '99'; 
-      } 
+      nav.style.display = nav.style.display === 'flex' ? 'none' : 'flex'; 
+      nav.style.flexDirection = 'column'; 
+      nav.style.position = 'absolute'; 
+      nav.style.top = '100%'; nav.style.left = '0'; nav.style.right = '0'; 
+      nav.style.background = 'var(--surface)'; nav.style.padding = 'var(--space-md)'; 
+      nav.style.boxShadow = 'var(--shadow)'; nav.style.zIndex = '99'; 
     });
   </script>
 </body>
