@@ -1,62 +1,71 @@
-#  Hotel El Rincón del Carmen - Sistema de Reservas
+# Hotel El Rincón del Carmen: sistema de reservas
 
-Sitio web responsivo y funcional para la gestión de reservas de habitaciones, desarrollado con estándares modernos de desarrollo web. Simula un entorno completo de hotelería con autenticación, disponibilidad en tiempo real, prevención de solapamientos y panel administrativo.
+Aplicación web para buscar y reservar habitaciones de hotel, con validación de fechas y panel administrativo. Es un proyecto de frontend: los datos se guardan en el navegador con `localStorage`.
 
-## ✨ Características Principales
--  **Mobile-First**: Diseño optimizado para móviles, tablets y escritorio.
--  **Motor de Búsqueda**: Filtro por fechas y cantidad de huéspedes con cálculo automático de precio total.
-- 🔐 **Autenticación Segura**: Registro con documento, nombre, nacionalidad, email, teléfono y contraseña. Solo usuarios logueados pueden reservar.
-- ️ **Prevención de Solapamientos**: Algoritmo que valida rangos de fechas en tiempo real para evitar reservas duplicadas.
-- 🔄 **Gestión Ágil**: Cancelación instantánea de reservas (libera fechas automáticamente).
-- 🎛️ **Panel Admin**: CRUD de habitaciones y gestión de reservas.
--  **Persistencia Local**: Simulación de base de datos mediante `localStorage`.
+**Demo:** https://juanacevedo124.github.io/Proyecto-Javascript/
 
-## ️ Tecnologías Utilizadas
-- `HTML5` & `CSS3`: Estructura semántica, diseño responsivo, variables CSS, Grid/Flexbox.
-- `JavaScript (ES6+)`: Módulos, Web Components nativos (Vanilla JS), manejo de eventos, lógica de negocio.
-- `Web Components`: Modularización de interfaz (`<auth-panel>`, `<room-gallery>`, `<booking-engine>`, etc.).
-- `localStorage`: Simulación de almacenamiento persistente sin backend.
+## Funcionalidades
 
-## 📁 Estructura del Proyecto
-hotel-rincon/
-├── index.html # Landing Page (Carrusel, Servicios, CTA)
-── reservas.html # Motor de búsqueda, resultados y gestión de reservas
-├── contacto.html # Ubicación, mapa y formulario de contacto
-├── admin.html # Panel administrativo (Habitaciones y Reservas)
-── css/
-│ └── main.css # Estilos globales, responsive y componentes
+- Registro e inicio de sesión de usuarios (simulados en el navegador).
+- Búsqueda por fechas y número de huéspedes, con cálculo automático del precio total.
+- Validación que impide reservar una habitación en fechas que se cruzan.
+- Cancelación de reservas, que libera las fechas de inmediato.
+- Panel administrativo para gestionar habitaciones y reservas.
+- Diseño responsive con enfoque mobile-first.
+
+## Tecnologías
+
+| Área | Herramientas |
+|---|---|
+| Interfaz | HTML5, CSS3 (variables, Grid, Flexbox) |
+| Lógica | JavaScript ES6+ con módulos |
+| Componentes | Web Components nativos, sin librerías |
+| Persistencia | `localStorage` |
+
+## Estructura
+
+```text
+Proyecto-Javascript/
+├── index.html           Página principal
+├── reservas.html        Búsqueda y gestión de reservas
+├── contacto.html        Ubicación y contacto
+├── admin.html           Panel administrativo
+├── css/main.css
 └── js/
-├── data-service.js # Capa de datos, lógica de negocio y localStorage
-└── components.js # Web Components nativos reutilizables
+    ├── app.js
+    ├── components.js    Web Components
+    └── data-service.js  Datos y reglas de negocio
+```
 
-## 🚀 Instalación y Ejecución
-1. Clona el repositorio: `git clone <url-repo>`
-2. Navega a la carpeta: `cd hotel-rincon`
-3. Inicia un servidor local (requerido para módulos ES6):
-   ```bash
-   npx serve .
-   # o usa la extensión "Live Server" en VS Code
-4. Abre en el navegador: http://localhost:3000
-👤 Credenciales de Prueba
-### Rol
-- Admin
-### Email
-- admin@rinconcarmen.com
-### Contraseña
-- admin2026
-### Rol
-- Usuario
-### Email
-- Regístrate desde reservas.html
-### Contraseña
-La que definas
+## Ejecución local
 
-## Notas Técnicas
-Sin solapamiento: El sistema valida checkIn < existingCheckOut && checkOut > existingCheckIn.
-Cancelación: Cambia el estado a cancelled, lo que libera el rango de fechas inmediatamente.
-Imágenes: Se utiliza Unsplash para simulación. En producción, reemplazar por CDN propio.
-Web Components: Desarrollados con Vanilla JS para máxima compatibilidad y sin dependencias externas.
-## 📦 Entrega
-Código fuente versionado con Git.
-Repositorio privado compartido con las cuentas indicadas por el trainer.
-Cumple con todos los requerimientos técnicos y funcionales del brief.
+Los módulos ES6 requieren un servidor local:
+
+```bash
+git clone https://github.com/JuanAcevedo124/Proyecto-Javascript.git
+cd Proyecto-Javascript
+npx serve .
+```
+
+Luego abre la dirección que muestra la terminal.
+
+## Acceso de prueba
+
+| Rol | Correo | Contraseña |
+|---|---|---|
+| Administrador | admin@rinconcarmen.com | admin2026 |
+| Usuario | Regístrate en `reservas.html` | La que definas |
+
+## Decisiones técnicas
+
+- **Cruce de fechas:** hay conflicto si `inicio < finExistente && fin > inicioExistente`, y solo se comparan reservas confirmadas.
+- **Cancelación:** la reserva pasa al estado `cancelled` y deja de bloquear sus fechas.
+
+## Limitaciones
+
+Al no tener backend, la autenticación es una demostración y las contraseñas se guardan sin cifrar en el navegador. No debe usarse con datos reales.
+
+## Autor
+
+Juan José Acevedo Morales, desarrollador de software junior.
+[Portafolio](https://juanacevedo124.github.io/Portafolio/) | [GitHub](https://github.com/JuanAcevedo124) | [LinkedIn](https://www.linkedin.com/in/juan-acevedo-b24759450/)
